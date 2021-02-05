@@ -9,9 +9,14 @@ class ProductAPI {
         return axios.get(url);
     }
 
-    getAllBrandName(){
+    getAllBrandName() {
         const url = "https://shoppingapp-mock.herokuapp.com/api/brands";
         return axios.get(url)
+    }
+
+    getAllUsers() {
+        const url = "https://shoppingapp-mock.herokuapp.com/api/users";
+        return axios.get(url);
     }
 
     sorting(data1, data2) {
@@ -51,6 +56,21 @@ class ProductAPI {
 
         return products;
     }
+
+    async changeProductMode(productId, status) {
+        let data = { active: status == true ? 1 : 0 };
+        const url = "https://shoppingapp-mock.herokuapp.com/api/products/" + productId;
+        return await axios.patch(url, data);
+    }
+
+    async checkValidProduct(productId, status) {
+        try {
+            var result = await this.changeProductMode(productId, status);
+        } catch (err) {
+            throw new Error("Please choose correct product");
+        }
+    }
+
 }
 
 exports.ProductAPI = ProductAPI;
