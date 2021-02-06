@@ -16,6 +16,11 @@ class ProductOrder {
         return axios.get(url);
     }
 
+    async getAllOrders() {
+        const url = "https://shoppingapp-mock.herokuapp.com/api/orders";
+        return axios.get(url);
+    }
+
     async validCheck(orderDetails) {
         var errors = [];
         try {
@@ -59,14 +64,51 @@ class ProductOrder {
         return axios.patch(url, { status: "CANCELLED", cancelledDate: new Date().toJSON() });
     }
 
+
+    async validOrderStatusForCancellation(orderId) {
+        const url = "https://shoppingapp-mock.herokuapp.com/api/orders/" + orderId;
+        var result = await axios.get(url);
+        var orderList = result.data;
+        if (orderList.status == "CANCELLED") {
+            throw new Error("Already Order has been Cancelled");
+        } else if (orderList.status == "DELIVERED") {
+            throw new Error("Delivered Product cannot be cancelled");
+        }
+    }
+
+
     async orderCancel(orderId) {
         try {
+            await this.validOrderStatusForCancellation(orderId);
             var result = await this.cancelStatus(orderId);
-        } catch (err) {
-            throw new Error("Please choose valid orderId");
+        } catch (error) {
+            throw error;
         }
 
     }
+
+    async validUser(userId) {
+        try {
+            var usersList = await this.getUser(userId);
+        } catch (err) {
+            throw new Error("Please check userID");
+        }
+    }
+
+    async myOrders(userId) {
+        try {
+            var userOrders = await this.validUser(userId);
+            var Allorders = await this.getAllOrders();
+            var orders = Allorders.data;
+            var myOrders = orders.filter(o => o.userId == userId);
+            return myOrders;
+        } catch (err) {
+            throw err;
+        }
+
+    }
+
+
 
     // getAllUsers() {
     //     const url = "https://shoppingapp-mock.herokuapp.com/api/users";
